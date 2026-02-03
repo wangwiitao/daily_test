@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { CustomInput } from "./CustomInput";
 export default function App() {
   const inputRef = useRef();
 
@@ -13,8 +14,4 @@ export default function App() {
       <button type="submit">Submit</button>
     </form>
   );
-}
-
-function CustomInput({ ref }) {
-  return <input ref={ref} style={{ border: "2px solid green" }} />;
 }
