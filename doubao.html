@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silviculture-Planting</title>
+  <!-- 1. 先引入React核心 -->
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <!-- 2. 引入Babel（必须在JSX代码前） -->
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.6/babel.min.js"></script>
+  <!-- 3. Ant Design CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <!-- 4. Ant Design Icons CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ant-design/icons@4.8.0/dist/index.css">
+  <!-- 5. ECharts -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <!-- 6. echarts-for-react -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts-for-react@3.0.2/dist/echarts-for-react.min.js"></script>
+  <!-- 7. Ant Design JS（使用v4稳定版，避免v5兼容性问题） -->
+  <script src="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    // 等待AntD加载完成后再执行
+    window.onload = function() {
+      // 确认AntD已挂载
+      if (!window.antd) {
+        console.error('AntD未正确加载');
+        return;
+      }
+
+      // 解构AntD v4组件（v4所有组件都在antd对象下）
+      const { 
+        Layout, Row, Col, Card, Select, Input, Tabs, Table, 
+        Typography, Space, Button, Avatar, Comment, List, 
+        InputNumber, Divider, Badge, Menu, Dropdown 
+      } = window.antd;
+      
+      // 解构图标（v4图标需单独引入）
+      const { 
+        DownOutlined, ExpandOutlined, MinusOutlined, 
+        EditOutlined, DeleteOutlined, PlusOutlined, 
+        LineChartOutlined, FilterOutlined 
+      } = window.antdIcons || window['@ant-design/icons'];
+      
+      // 解构Typography
+      const { Text, Paragraph } = Typography;
+      const { Option } = Select;
+      const { TabPane } = Tabs;
+      const { Header, Content } = Layout;
+
+      // 模拟BU/Region/District下拉选项数据
+      const BU_OPTIONS = [
+        { label: 'All BU', value: 'All BU' },
+        { label: 'BU-Kalbar', value: 'BU-Kalbar' },
+        { label: 'BU-Palembang', value: 'BU-Palembang' },
+        { label: 'BU-Riau', value: 'BU-Riau' },
+        { label: 'BU-Jambi', value: 'BU-Jambi' },
+        { label: 'BU-Kalteng', value: 'BU-Kalteng' },
+      ];
+
+      const REGION_OPTIONS = [
+        { label: 'All Region', value: 'All Region' },
+        { label: 'Region 1', value: 'Region1' },
+        { label: 'Region 2', value: 'Region2' },
+        { label: 'Region 3', value: 'Region3' },
+      ];
+
+      const DISTRICT_OPTIONS = [
+        { label: 'All District', value: 'All District' },
+        { label: 'District-P1', value: 'District-P1' },
+        { label: 'District-P2', value: 'District-P2' },
+        { label: 'District-J1', value: 'District-J1' },
+      ];
+
+      // 模拟更多筛选器菜单
+      const moreFilterMenu = (
+        <Menu>
+          <Menu.Item key="1">
+            <Space>
+              <FilterOutlined /> Standard Stocking Filter
+            </Space>
+          </Menu.Item>
+          <Menu.Item key="2">
+            <Space>
+              <FilterOutlined /> Road Availability Filter
+            </Space>
+          </Menu.Item>
+          <Menu.Item key="3">
+            <Space>
+              <FilterOutlined /> Worker Filter
+            </Space>
+          </Menu.Item>
+          <Menu.Item key="4">
+            <Space>
+              <FilterOutlined /> Machine Filter
+            </Space>
+          </Menu.Item>
+          <Menu.Item key="5">
+            <Space>
+              <FilterOutlined /> Time Duration Filter
+            </Space>
+          </Menu.Item>
+          <Menu.Item key="6">
+            <Space>
+              <FilterOutlined /> Production Filter
+            </Space>
+          </Menu.Item>
+        </Menu>
+      );
+
+      // 模拟图表数据
+      const chartData = [
+        { name: 'Kalbar', manual: 0.35 },
+        { name: 'Palembang', manual: 0.55 },
+        { name: 'Riau', manual: 0.5 },
+        { name: 'Jambi', manual: 0.65 },
+        { name: 'Kalimantan Tengah', manual: 0.85 },
+      ];
+
+      // 模拟表格数据
+      const tableData = [
+        {
+          key: '1',
+          serial: '5122732502',
+          spk: '0.89',
+          timeDuration: 'Palembang',
+          bu: 'Palembang P1',
+          region: 'D',
+        },
+        {
+          key: '2',
+          serial: '5122696020',
+          spk: '0.68',
+          timeDuration: 'Palembang',
+          bu: 'Palembang P1',
+          region: 'D.SIMP',
+        },
+        {
+          key: '3',
+          serial: '5122715557',
+          spk: '0.55',
+          timeDuration: 'Jambi',
+          bu: 'Jambi',
+          region: '',
+        },
+      ];
+
+      // 右侧评论数据
+      const commentData = [
+        {
+          author: 'test',
+          avatar: 'https://joeschmoe.io/api/v1/random',
+          content: (
+            <Paragraph>
+              exceeding the mean by 0.3016 days.<br />
+              This reflects the slowest planting process under the Manual method indicating potential operational inefficiencies or constraints.
+            </Paragraph>
+          ),
+          datetime: '2025-11-07 17:53:07',
+        },
+      ];
+
+      // 主组件
+      const SilviculturePlanting = () => {
+        // 筛选器状态
+        const [bu, setBu] = React.useState('All BU');
+        const [region, setRegion] = React.useState('All Region');
+        const [district, setDistrict] = React.useState('All District');
+        
+        // 图表配置
+        const chartOption = {
+          title: {
+            text: 'Time Duration Compare',
+            left: 'left',
+            fontSize: 14,
+            fontWeight: 600
+          },
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow',
+            },
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true,
+          },
+          xAxis: {
+            type: 'category',
+            data: chartData.map(item => item.name),
+            axisTick: {
+              alignWithLabel: true,
+            },
+            axisLabel: {
+              fontSize: 12
+            }
+          },
+          yAxis: {
+            type: 'value',
+            max: 1,
+            interval: 0.2,
+            axisLabel: {
+              fontSize: 12
+            }
+          },
+          series: [
+            {
+              name: 'Manual',
+              type: 'bar',
+              barWidth: '60%',
+              data: chartData.map(item => item.manual),
+              itemStyle: {
+                color: '#1890ff',
+              },
+              label: {
+                show: false
+              }
+            },
+          ],
+        };
+
+        return (
+          <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
+            <Content style={{ padding: '16px 24px' }}>
+              {/* 筛选器区域 */}
+              <Row gutter={[24, 16]} style={{ marginBottom: 24 }}>
+                <Col span={6}>
+                  <Select 
+                    value={bu} 
+                    onChange={setBu} 
+                    style={{ width: '100%' }}
+                    placeholder="Select BU"
+                    size="middle"
+                    bordered={true}
+                    dropdownMatchSelectWidth={false}
+                  >
+                    {BU_OPTIONS.map(option => (
+                      <Option key={option.value} value={option.value}>
+                        {option.label}
+                      </Option>
+                    ))}
+                  </Select>
+                </Col>
+                <Col span={6}>
+                  <Select 
+                    value={region} 
+                    onChange={setRegion} 
+                    style={{ width: '100%' }}
+                    placeholder="Select Region"
+                    size="middle"
+                    bordered={true}
+                    dropdownMatchSelectWidth={false}
+                  >
+                    {REGION_OPTIONS.map(option => (
+                      <Option key={option.value} value={option.value}>
+                        {option.label}
+                      </Option>
+                    ))}
+                  </Select>
+                </Col>
+                <Col span={6}>
+                  <Select 
+                    value={district} 
+                    onChange={setDistrict} 
+                    style={{ width: '100%' }}
+                    placeholder="Select District"
+                    size="middle"
+                    bordered={true}
+                    dropdownMatchSelectWidth={false}
+                  >
+                    {DISTRICT_OPTIONS.map(option => (
+                      <Option key={option.value} value={option.value}>
+                        {option.label}
+                      </Option>
+                    ))}
+                  </Select>
+                </Col>
+                <Col span={6} style={{ textAlign: 'right' }}>
+                  <Dropdown overlay={moreFilterMenu} trigger={['click']}>
+                    <Button 
+                      type="text" 
+                      danger 
+                      icon={<ExpandOutlined />}
+                      size="middle"
+                    >
+                      Expand for more filters (0/6)
+                    </Button>
+                  </Dropdown>
+                </Col>
+              </Row>
+
+              {/* 关键指标卡片区域 */}
+              <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+                <Col span={4}>
+                  <Card 
+                    title="Standard Stocking" 
+                    bordered={true}
+                    size="small"
+                    headStyle={{ padding: '8px 16px', fontSize: 13 }}
+                    bodyStyle={{ padding: '12px 16px' }}
+                  >
+                    <Text type="secondary">-</Text>
+                  </Card>
+                </Col>
+                <Col span={4}>
+                  <Card 
+                    title="Road Availability" 
+                    bordered={true}
+                    size="small"
+                    headStyle={{ padding: '8px 16px', fontSize: 13 }}
+                    bodyStyle={{ padding: '12px 16px' }}
+                  >
+                    <div style={{ fontSize: 12, color: '#666' }}>Actual No.of W...</div>
+                    <Text strong style={{ display: 'block', marginTop: 4, fontSize: 16 }}>1,183.8</Text>
+                  </Card>
+                </Col>
+                <Col span={4}>
+                  <Card 
+                    title="Worker" 
+                    bordered={true}
+                    size="small"
+                    headStyle={{ padding: '8px 16px', fontSize: 13 }}
+                    bodyStyle={{ padding: '12px 16px' }}
+                  >
+                    <div style={{ fontSize: 12, color: '#666' }}>Actual No.of M...</div>
+                    <Text strong style={{ display: 'block', marginTop: 4, fontSize: 16 }}>-</Text>
+                  </Card>
+                </Col>
+                <Col span={4}>
+                  <Card 
+                    title="Machine" 
+                    bordered={true}
+                    size="small"
+                    headStyle={{ padding: '8px 16px', fontSize: 13 }}
+                    bodyStyle={{ padding: '12px 16px' }}
+                  >
+                    <Text type="secondary">-</Text>
+                  </Card>
+                </Col>
+                <Col span={4} style={{ border: '1px solid #d9d9d9', borderRadius: 6, padding: '12px 16px' }}>
+                  <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 13 }}>Time Duration</div>
+                  <div style={{ marginBottom: 8 }}>
+                    <Text style={{ fontSize: 12, color: '#666' }}>Manual</Text>
+                    <InputNumber 
+                      value={0.55} 
+                      formatter={value => `${value} Day/Ha`}
+                      style={{ width: '100%', marginTop: 4 }}
+                      readOnly
+                      size="small"
+                      bordered={false}
+                    />
+                  </div>
+                  <div>
+                    <Text style={{ fontSize: 12, color: '#666' }}>Machine</Text>
+                    <InputNumber 
+                      value={2025} 
+                      style={{ width: '100%', marginTop: 4 }}
+                      readOnly
+                      size="small"
+                      bordered={false}
+                    />
+                  </div>
+                </Col>
+                <Col span={4}>
+                  <Card 
+                    title="Production" 
+                    bordered={true}
+                    size="small"
+                    headStyle={{ padding: '8px 16px', fontSize: 13 }}
+                    bodyStyle={{ padding: '12px 16px' }}
+                  >
+                    <div style={{ fontSize: 12, color: '#666' }}>Manual</div>
+                    <div style={{ fontSize: 12, color: '#666', marginTop: 8 }}>Machine</div>
+                  </Card>
+                </Col>
+              </Row>
+
+              {/* 主内容区域：图表+表格 + 右侧分析面板 */}
+              <Row gutter={[24, 16]}>
+                {/* 左侧图表和表格 */}
+                <Col span={17}>
+                  <Card 
+                    bordered={true}
+                    size="small"
+                    bodyStyle={{ padding: '16px' }}
+                  >
+                    {/* 图表工具栏 */}
+                    <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Space>
+                        <Badge count={1} dot offset={[0, 10]}>
+                          <Button size="small" type="text" style={{ fontWeight: 600 }}>BU</Button>
+                        </Badge>
+                        <Button size="small" type="text">Region</Button>
+                        <Button size="small" type="text">District</Button>
+                      </Space>
+                      <Space>
+                        <Button size="small" icon={<LineChartOutlined />} type="text" />
+                        <Button size="small" icon={<DownOutlined />} type="text" />
+                      </Space>
+                    </div>
+
+                    {/* ECharts 柱状图 - 简化版（直接初始化ECharts） */}
+                    <div id="chart-container" style={{ height: 300, marginBottom: 24 }}></div>
+
+                    {/* 数据表格 */}
+                    <Table 
+                      columns={[
+                        { title: 'Seria...', dataIndex: 'serial', key: 'serial', width: '20%' },
+                        { title: 'SPK', dataIndex: 'spk', key: 'spk', width: '15%' },
+                        { title: 'Time Duration', dataIndex: 'timeDuration', key: 'timeDuration', width: '20%' },
+                        { title: 'Bu', dataIndex: 'bu', key: 'bu', width: '20%' },
+                        { title: 'Region', dataIndex: 'region', key: 'region', width: '25%' },
+                      ]}
+                      dataSource={tableData}
+                      pagination={false}
+                      size="middle"
+                      bordered={true}
+                    />
+                  </Card>
+                </Col>
+
+                {/* 右侧分析面板 */}
+                <Col span={7}>
+                  <Card 
+                    title={
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: 13, fontWeight: 600 }}>Analysis Panel</span>
+                        <Space>
+                          <Button size="small" icon={<ExpandOutlined />} type="text">Expand</Button>
+                          <Button size="small" icon={<MinusOutlined />} type="text">Minimize</Button>
+                        </Space>
+                      </div>
+                    }
+                    bordered={true}
+                    size="small"
+                    bodyStyle={{ padding: 0 }}
+                  >
+                    {/* 评论列表 */}
+                    <List
+                      className="comment-list"
+                      itemLayout="horizontal"
+                      dataSource={commentData}
+                      renderItem={item => (
+                        <li style={{ padding: '16px' }}>
+                          <Comment
+                            author={<Text strong style={{ fontSize: 12 }}>{item.author}</Text>}
+                            avatar={<Avatar src={item.avatar} alt={item.author} size="small" />}
+                            content={item.content}
+                            datetime={<Text style={{ fontSize: 11 }}>{item.datetime}</Text>}
+                          />
+                        </li>
+                      )}
+                      style={{ maxHeight: 300, overflow: 'auto', borderBottom: '1px solid #f0f0f0' }}
+                    />
+
+                    <Divider style={{ margin: 0 }} />
+
+                    {/* 输入区域 */}
+                    <div style={{ padding: '16px' }}>
+                      <Input.TextArea 
+                        placeholder="Enter indicators and analysis dimensions to start today's analysis!"
+                        rows={4}
+                        size="small"
+                        bordered={true}
+                        style={{ marginBottom: 12 }}
+                      />
+                      <Space style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Space>
+                          <Button size="small" icon={<PlusOutlined />} type="text" />
+                          <Button size="small" icon={<EditOutlined />} type="text" />
+                          <Button size="small" icon={<DeleteOutlined />} type="text" />
+                        </Space>
+                        <Button size="small" shape="circle" danger icon={<DeleteOutlined />} />
+                      </Space>
+                    </div>
+                  </Card>
+                </Col>
+              </Row>
+            </Content>
+          </Layout>
+        );
+      };
+
+      // 渲染组件
+      ReactDOM.render(<SilviculturePlanting />, document.getElementById('root'));
+
+      // 手动初始化ECharts（避免echarts-for-react兼容问题）
+      const chartDom = document.getElementById('chart-container');
+      const myChart = echarts.init(chartDom);
+      const chartOption = {
+        title: {
+          text: 'Time Duration Compare',
+          left: 'left',
+          fontSize: 14,
+          fontWeight: 600
+        },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow',
+          },
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true,
+        },
+        xAxis: {
+          type: 'category',
+          data: ['Kalbar', 'Palembang', 'Riau', 'Jambi', 'Kalimantan Tengah'],
+          axisTick: {
+            alignWithLabel: true,
+          },
+          axisLabel: {
+            fontSize: 12
+          }
+        },
+        yAxis: {
+          type: 'value',
+          max: 1,
+          interval: 0.2,
+          axisLabel: {
+            fontSize: 12
+          }
+        },
+        series: [
+          {
+            name: 'Manual',
+            type: 'bar',
+            barWidth: '60%',
+            data: [0.35, 0.55, 0.5, 0.65, 0.85],
+            itemStyle: {
+              color: '#1890ff',
+            }
+          }
+        ]
+      };
+      myChart.setOption(chartOption);
+      window.addEventListener('resize', function() {
+        myChart.resize();
+      });
+    };
+  </script>
+</body>
+</html>

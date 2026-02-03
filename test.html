@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React + Ant Design Demo</title>
+
+    <!-- 引入 React 和 ReactDOM -->
+    <script
+      crossorigin
+      src="https://unpkg.com/react@18/umd/react.production.min.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+    ></script>
+
+    <!-- 引入 dayjs 日期处理库 -->
+    <script src="https://unpkg.com/dayjs@1.11.10/dayjs.min.js"></script>
+
+    <!-- 引入 Ant Design 样式 -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/antd@5.11.0/dist/reset.css"
+    />
+
+    <!-- 引入 Ant Design JS（使用CDN引入的稳定版本） -->
+    <script src="https://unpkg.com/antd@5.11.0/dist/antd.min.js"></script>
+
+    <!-- 引入 Babel Standalone 用于 JSX 转换 -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+      body {
+        padding: 24px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useRef, useEffect } = React;
+      const { Header, Footer, Sider, Content } = Layout;
+
+      // 从 antd 全局对象中解构所需组件
+      const { Button, Space, Alert, Typography, Card } = antd;
+      const { Title } = Typography;
+
+      function App() {
+        const [message, setMessage] = React.useState("Hello Ant Design!");
+        const [visible, setVisible] = React.useState(true);
+        console.log("rerender");
+        function successBtn() {
+          setVisible((visible) => {
+            return true;
+          });
+          setMessage("按钮被点击了！");
+        }
+        function dangerBtn() {
+          setVisible(true);
+          setMessage("危险操作已触发！");
+        }
+        return (
+          <>
+            <Card style={{ maxWidth: 600 }}>
+              <Title level={2}>React + Ant Design in HTML</Title>
+              {visible && (
+                <Alert
+                  message="成功！"
+                  description={message}
+                  type="success"
+                  showIcon
+                  closable
+                  onClose={() => setVisible(false)}
+                />
+              )}
+              <Space style={{ marginTop: 16 }}>
+                <Button type="primary" onClick={() => successBtn()}>
+                  点我
+                </Button>
+                <Button danger onClick={() => dangerBtn()}>
+                  危险按钮
+                </Button>
+              </Space>
+            </Card>
+            <Test />
+          </>
+        );
+      }
+
+      function Test() {
+        const inputRef = useRef();
+        useEffect(() => {
+          inputRef.current.focus();
+        });
+
+        return <input ref={inputRef} />;
+      }
+
+      // 渲染应用
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
