@@ -1,52 +1,20 @@
-import { useState } from "react";
-import { createPortal } from "react-dom";
-
+import { useRef } from "react";
 export default function App() {
-  const [isOpen, setIsOpen] = useState(false);
-  function setClose(e) {
-    e.stopPropagation();
-    setIsOpen(false);
-  }
+  const inputRef = useRef();
 
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    console.log(inputRef.current.value);
+  }
   return (
-    <div
-      onClick={(e) => {
-        e.stopPropagation;
-        console.log("In the div");
-      }}
-      style={{ position: "relative", marginTop: "100px" }}
-    >
-      <h1>App content</h1>
-      <button onClick={() => setIsOpen(true)}>Show Message</button>
-      <AlertMessage isOpen={isOpen} onClose={(e) => setClose(e)}>
-        Secret Message
-        <br />
-        Click To Close
-      </AlertMessage>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <CustomInput ref={inputRef} />
+      <button type="submit">Submit</button>
+    </form>
   );
 }
 
-function AlertMessage({ children, onClose, isOpen }) {
-  if (!isOpen) return null;
-
-  return createPortal(
-    <div
-      onClick={onClose}
-      style={{
-        cursor: "pointer",
-        position: "absolute",
-        top: ".5rem",
-        left: "50%",
-        translate: "-50%",
-        background: "#777",
-        color: "white",
-        borderRadius: ".5rem",
-        padding: ".5rem",
-      }}
-    >
-      {children}
-    </div>,
-    document.body,
-  );
+function CustomInput({ ref }) {
+  return <input ref={ref} style={{ border: "2px solid green" }} />;
 }
