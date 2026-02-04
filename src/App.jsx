@@ -7,6 +7,7 @@ export default function App() {
     e.stopPropagation();
     setIsOpen(false);
   }
+  // throw new Error()
 
   return (
     <div
