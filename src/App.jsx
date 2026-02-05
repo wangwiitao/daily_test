@@ -7,8 +7,6 @@ export default function App() {
   const [isDialogModalOpen, setIsDialogModalOpen] = useState(true);
   // throw new Error(3333);
 
-    console.log(inputRef.current.value);
-  }
   return (
     <>
       <h1>12313123</h1>
