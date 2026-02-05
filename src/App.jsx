@@ -1,37 +1,38 @@
-import { useState } from "react";
-import { CustomModal } from "./CustomModal";
-import { DialogModal } from "./DialogModal";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useMutationLogger } from "./useMutationLogger";
 
 export default function App() {
-  const [isCustomModalOpen, setIsCustomModalOpen] = useState(true);
-  const [isDialogModalOpen, setIsDialogModalOpen] = useState(true);
+  useMutationLogger();
+  const [isOpen, setIsOpen] = useState(false);
+  const [popupTop, setPopupTop] = useState(0);
+  const buttonRef = useRef(null);
+
+  useLayoutEffect(() => {
+    // useState(0)执行， useEffect后执行，所以render的地方执行了两次
+    // 改为useLayoutEffect，保证是在dom绘制前执行
+    if (buttonRef.current == null || !isOpen) return setPopupTop(0);
+    const { bottom } = buttonRef.current.getBoundingClientRect();
+    setPopupTop(bottom + 25);
+  }, [isOpen]);
+  const now = performance.now();
+  while (now > performance.now() - 100) {}
 
   return (
-    <div style={{ position: "relative", marginTop: "20px" }}>
-      <button onClick={() => setIsCustomModalOpen(true)}>
-        Show Custome modal
+    <>
+      <button ref={buttonRef} onClick={() => setIsOpen((o) => !o)}>
+        Show
       </button>
-      <button onClick={() => setIsDialogModalOpen(true)}>
-        Show Dialog modal
-      </button>
-      <CustomModal
-        isOpen={isCustomModalOpen}
-        onClose={() => setIsCustomModalOpen(false)}
-      >
-        <p>
-          This is a <strong>CUSTOM!</strong> modal
-        </p>
-        <button onClick={() => setIsCustomModalOpen(false)}>Close</button>
-      </CustomModal>
-      <DialogModal
-        isOpen={isDialogModalOpen}
-        onClose={() => setIsDialogModalOpen(false)}
-      >
-        <p>
-          This is a <strong>Dialog!</strong> modal
-        </p>
-        <button onClick={() => setIsDialogModalOpen(false)}>Close</button>
-      </DialogModal>
-    </div>
+      {isOpen && (
+        <div
+          style={{
+            position: "absolute",
+            top: `${popupTop}px`,
+            border: "1px solid black",
+          }}
+        >
+          Tooltip
+        </div>
+      )}
+    </>
   );
 }
