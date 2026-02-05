@@ -6,8 +6,6 @@ export default function App() {
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(true);
   const [isDialogModalOpen, setIsDialogModalOpen] = useState(true);
 
-    console.log(inputRef.current.value);
-  }
   return (
     <div style={{ position: "relative", marginTop: "20px" }}>
       <button onClick={() => setIsCustomModalOpen(true)}>
