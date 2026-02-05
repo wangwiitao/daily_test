@@ -1,37 +1,15 @@
 import { useState } from "react";
-import { CustomModal } from "./CustomModal";
-import { DialogModal } from "./DialogModal";
 
 export default function App() {
-  const [isCustomModalOpen, setIsCustomModalOpen] = useState(true);
-  const [isDialogModalOpen, setIsDialogModalOpen] = useState(true);
+  const [changeDogs, setChangeDogs] = useState(false);
 
   return (
-    <div style={{ position: "relative", marginTop: "20px" }}>
-      <button onClick={() => setIsCustomModalOpen(true)}>
-        Show Custome modal
-      </button>
-      <button onClick={() => setIsDialogModalOpen(true)}>
-        Show Dialog modal
-      </button>
-      <CustomModal
-        isOpen={isCustomModalOpen}
-        onClose={() => setIsCustomModalOpen(false)}
-      >
-        <p>
-          This is a <strong>CUSTOM!</strong> modal
-        </p>
-        <button onClick={() => setIsCustomModalOpen(false)}>Close</button>
-      </CustomModal>
-      <DialogModal
-        isOpen={isDialogModalOpen}
-        onClose={() => setIsDialogModalOpen(false)}
-      >
-        <p>
-          This is a <strong>Dialog!</strong> modal
-        </p>
-        <button onClick={() => setIsDialogModalOpen(false)}>Close</button>
-      </DialogModal>
+    <div>
+      {changeDogs ? <span># of Dogs</span> : <span># of Cats:</span>}
+      <br />
+      <input type="text" key={changeDogs ? "dogs" : "cats"}></input>
+      <br />
+      <button onClick={() => setChangeDogs((d) => !d)}>Switch</button>
     </div>
   );
 }
