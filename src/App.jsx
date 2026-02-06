@@ -1,15 +1,20 @@
-import { useRef } from "react";
-import { CustomInput } from "./CustomInput";
-import { Input } from "./Input";
+import { useCallback, useRef, useState } from "react";
+
 export default function App() {
-  const inputRef = useRef();
+  const inputRef = useCallback((node) => {
+    node.focus();
+    return () => {
+      console.log("Cleanup");
+    };
+  }, []);
+  const [visible, setVisible] = useState(false);
+  const [count, setCount] = useState(0);
 
   return (
     <>
-      <button onClick={() => console.log(inputRef.current1.input2.focus())}>
-        Submit
-      </button>
-      <Input type="text" ref={inputRef} />
+      <button onClick={() => setCount((v) => v + 1)}>{count}</button>
+      <button onClick={() => setVisible((v) => !v)}>Toggle</button>
+      {visible && <input ref={inputRef}></input>}
     </>
   );
 }
