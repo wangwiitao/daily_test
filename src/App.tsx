@@ -1,12 +1,14 @@
-import { Button } from "./Button";
+import { CounterDisplay } from "./CounterDisplay.tsx";
+import { CounterButtons } from "./CounterButtons.tsx";
+import { ContextProvider } from "./CounterContext";
 
 export default function App() {
   return (
     <>
-      <p>Test</p>
-      <Button As="a" href="/">
-        Button
-      </Button>
+      <ContextProvider>
+        <CounterDisplay />
+        <CounterButtons />
+      </ContextProvider>
     </>
   );
 }
