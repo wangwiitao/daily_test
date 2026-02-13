@@ -1,21 +1,12 @@
-import { Button } from "./Button.tsx";
+import { Button } from "./Button";
 
 export default function App() {
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: ".5rem",
-        alignItems: "flex-start",
-      }}
-    >
-      <Button size="sm">Small</Button>
-      <Button>Medium</Button>
-      <Button size="lg">Large</Button>
+    <>
+      <p>Test</p>
       <Button As="a" href="/">
-        Link
+        Button
       </Button>
-    </div>
+    </>
   );
 }
