@@ -1,21 +1,27 @@
-import { Card } from "./Card";
+import { useState, Suspense } from "react";
+import { Child } from "./Child";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ErrorBoundary } from "./ErrorBoundary";
+
+const queryClient = new QueryClient();
 
 export default function App() {
+  const [cutoff, setCutoff] = useState(1);
+
   return (
-    <Card secret="Top secret">
-      <Card.Header padding="2rem">
-        <h1 style={{ margin: "0" }}>Header</h1>
-      </Card.Header>
-      <Card.Body>
-        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Corporis nihil
-        animi ipsa quisquam, repellendus ullam voluptatem, praesentium quae quod
-        distinctio libero! Provident maxime dolorem id sunt consequatur ea
-        dignissimos sint.
-      </Card.Body>
-      <Card.Footer>
-        <button>Ok</button>
-        <button>Cancel</button>
-      </Card.Footer>
-    </Card>
+    <>
+      <input
+        type="number"
+        value={cutoff}
+        onChange={(e) => setCutoff(e.target.value)}
+      />
+      <ErrorBoundary fallback={<h1>Error</h1>}>
+        <Suspense fallback={<h1>Suspended</h1>}>
+          <QueryClientProvider client={queryClient}>
+            <Child cutoff={cutoff} />
+          </QueryClientProvider>
+        </Suspense>
+      </ErrorBoundary>
+    </>
   );
 }
