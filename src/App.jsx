@@ -1,27 +1,37 @@
-import { useState, Suspense } from "react";
-import { Child } from "./Child";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ErrorBoundary } from "./ErrorBoundary";
-
-const queryClient = new QueryClient();
+import { Suspense, useState, lazy } from "react";
+// import NewComment from "./NewComment";
+// import Comments from "./Comments";
+const Comments = lazy(() => wait(1000).then(() => import("./Comments")));
+const NewComment = lazy(() => wait(1000).then(() => import("./NewComment")));
 
 export default function App() {
-  const [cutoff, setCutoff] = useState(1);
+  const [viewComments, setViewComments] = useState(false);
+  const isLoggedIn = true;
 
   return (
     <>
-      <input
-        type="number"
-        value={cutoff}
-        onChange={(e) => setCutoff(e.target.value)}
-      />
-      <ErrorBoundary fallback={<h1>Error</h1>}>
-        <Suspense fallback={<h1>Suspended</h1>}>
-          <QueryClientProvider client={queryClient}>
-            <Child cutoff={cutoff} />
-          </QueryClientProvider>
+      <article>
+        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Doloremque
+        vitae autem fugiat error voluptatem voluptates, veniam cum delectus unde
+        quibusdam soluta architecto distinctio. Illum voluptatum numquam natus
+        cum non possimus!
+      </article>
+      {viewComments ? (
+        <Suspense fallback="Loading...">
+          {isLoggedIn && <NewComment />}
+          <Suspense fallback="Loading">
+            <Comments />
+          </Suspense>
         </Suspense>
-      </ErrorBoundary>
+      ) : (
+        <button onClick={() => setViewComments(true)}>View Comments</button>
+      )}
     </>
   );
+}
+
+function wait(duration) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, duration);
+  });
 }
