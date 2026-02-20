@@ -1,37 +1,15 @@
-import { Suspense, useState, lazy } from "react";
-// import NewComment from "./NewComment";
-// import Comments from "./Comments";
-const Comments = lazy(() => wait(1000).then(() => import("./Comments")));
-const NewComment = lazy(() => wait(1000).then(() => import("./NewComment")));
+import { useDeferredValue, useState } from "react";
+import { SlowChild } from "./SlowChild";
 
 export default function App() {
-  const [viewComments, setViewComments] = useState(false);
-  const isLoggedIn = true;
-
+  const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
+  console.log("query", query);
+  console.log("deferredQuery", deferredQuery);
   return (
     <>
-      <article>
-        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Doloremque
-        vitae autem fugiat error voluptatem voluptates, veniam cum delectus unde
-        quibusdam soluta architecto distinctio. Illum voluptatum numquam natus
-        cum non possimus!
-      </article>
-      {viewComments ? (
-        <Suspense fallback="Loading...">
-          {isLoggedIn && <NewComment />}
-          <Suspense fallback="Loading">
-            <Comments />
-          </Suspense>
-        </Suspense>
-      ) : (
-        <button onClick={() => setViewComments(true)}>View Comments</button>
-      )}
+      <input value={query} onChange={(e) => setQuery(e.target.value)} />
+      <SlowChild query={deferredQuery} />
     </>
   );
-}
-
-function wait(duration) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, duration);
-  });
 }
