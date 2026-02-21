@@ -1,28 +1,29 @@
-import { useState, Suspense, useDeferredValue } from "react";
-import { Child } from "./Child";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ErrorBoundary } from "./ErrorBoundary";
-
-const queryClient = new QueryClient();
+import { useState, useTransition } from "react";
+import { Post } from "./Post";
+import Comments from "./Comments";
+import { Author } from "./Author";
 
 export default function App() {
-  const [cutoff, setCutoff] = useState(1);
-  const deferredCutoff = useDeferredValue(cutoff)
-
+  const [tab, setTab] = useState("Post");
+  const [isPending, startTransition] = useTransition();
+  function setOpenTab(tab) {
+    startTransition(() => {
+      setTab(tab);
+    });
+  }
   return (
     <>
-      <input
-        type="number"
-        value={cutoff}
-        onChange={(e) => setCutoff(e.target.value)}
-      />
-      <ErrorBoundary fallback={<h1>Error</h1>}>
-        <Suspense fallback={<h1>Suspended</h1>}>
-          <QueryClientProvider client={queryClient}>
-            <Child cutoff={deferredCutoff} />
-          </QueryClientProvider>
-        </Suspense>
-      </ErrorBoundary>
+      <button onClick={() => setOpenTab("Post")}>View Post</button>
+      <button onClick={() => setOpenTab("Comments")}>View Comments</button>
+      <button onClick={() => setOpenTab("Author")}>View Author</button>
+
+      {tab === "Post" ? (
+        <Post />
+      ) : tab === "Comments" ? (
+        <Comments />
+      ) : (
+        <Author />
+      )}
     </>
   );
 }
